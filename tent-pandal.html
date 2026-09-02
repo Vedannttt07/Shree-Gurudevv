@@ -1,0 +1,377 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Tent &amp; Pandal Setup &ndash; Shree Gurudev Inn</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{--gold:#D4AF37;--gold-light:#F0D060;--gold-dark:#A88820;--charcoal:#0D0D0D;--surface:#161616;--surface2:#1E1E1E;--surface3:#2A2A2A;--text:#F0EDE6;--muted:#888;--radius:14px;--transition:0.35s cubic-bezier(.4,0,.2,1)}
+    html{scroll-behavior:smooth}
+    body{font-family:'DM Sans',sans-serif;background:var(--charcoal);color:var(--text);line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+    a{color:inherit;text-decoration:none}
+    #cg{pointer-events:none;position:fixed;width:340px;height:340px;border-radius:50%;background:radial-gradient(circle,rgba(212,175,55,.07) 0%,transparent 70%);transform:translate(-50%,-50%);z-index:0;mix-blend-mode:screen}
+    .container{max-width:1200px;margin:0 auto;padding:0 28px}
+    .gold{color:var(--gold)}
+
+    /* IMG SLOT */
+    .img-slot{position:relative;overflow:hidden;background:var(--surface2);border-radius:var(--radius)}
+    .img-slot img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .6s ease}
+    .img-slot:hover img{transform:scale(1.05)}
+    .slot-empty{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;border:1.5px dashed rgba(212,175,55,.25);border-radius:inherit;background:var(--surface2)}
+    .img-slot img.loaded ~ .slot-empty{display:none}
+    .slot-icon{font-size:2rem;opacity:.5}
+    .slot-fname{font-size:.72rem;color:var(--gold);font-weight:600;letter-spacing:.1em;opacity:.8}
+    .slot-hint{font-size:.65rem;color:var(--muted);text-align:center;padding:0 16px;line-height:1.5}
+
+    /* NAV */
+    nav{position:fixed;top:0;left:0;right:0;z-index:1000;padding:16px 0;background:rgba(13,13,13,.94);backdrop-filter:blur(20px);border-bottom:1px solid rgba(212,175,55,.1)}
+    .nav-inner{display:flex;align-items:center;justify-content:space-between}
+    .nav-logo{font-family:'Cormorant Garamond',serif;font-size:1.3rem;font-weight:700}
+    .nav-logo span{color:var(--gold)}
+    .nav-logo small{display:block;font-size:.56rem;font-family:'DM Sans',sans-serif;color:var(--muted);letter-spacing:.2em;text-transform:uppercase}
+    .back-btn{display:inline-flex;align-items:center;gap:8px;padding:9px 22px;border-radius:50px;border:1.5px solid rgba(212,175,55,.4);color:var(--gold);font-size:.82rem;font-weight:600;transition:var(--transition)}
+    .back-btn:hover{background:var(--gold);color:var(--charcoal)}
+
+    /* HERO */
+    .album-hero{position:relative;height:480px;margin-top:60px;overflow:hidden;display:flex;align-items:flex-end}
+    .hero-img-wrap{position:absolute;inset:0}
+    .hero-img-wrap .img-slot{border-radius:0;width:100%;height:100%}
+    .hero-img-wrap .slot-empty{border-radius:0}
+    .hero-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(13,13,13,.96) 0%,rgba(13,13,13,.25) 55%,transparent 100%)}
+    .hero-content{position:relative;z-index:2;padding:44px 0;width:100%}
+    .breadcrumb{font-size:.7rem;color:var(--muted);letter-spacing:.14em;text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+    .breadcrumb .bc-gold{color:var(--gold)}
+    .hero-title{font-family:'Cormorant Garamond',serif;font-size:clamp(2.6rem,5.5vw,4.2rem);font-weight:700;line-height:1.08;margin-bottom:14px}
+    .hero-title em{font-style:italic;color:var(--gold)}
+    .hero-desc{color:var(--muted);font-size:.95rem;max-width:540px;line-height:1.8}
+    .hero-stats{display:flex;gap:36px;margin-top:22px}
+    .hs strong{font-family:'Cormorant Garamond',serif;font-size:1.9rem;color:var(--gold);display:block;line-height:1}
+    .hs span{font-size:.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:.1em}
+
+    /* LABELS */
+    .sec-label{font-size:.68rem;font-weight:600;letter-spacing:.28em;text-transform:uppercase;color:var(--gold);margin-bottom:14px;display:flex;align-items:center;gap:12px}
+    .sec-label::before,.sec-label::after{content:'';flex:0 0 22px;height:1px;background:var(--gold);opacity:.4}
+    .sec-title{font-family:'Cormorant Garamond',serif;font-size:clamp(1.8rem,3.5vw,2.6rem);font-weight:700;line-height:1.15;margin-bottom:12px;letter-spacing:-.015em}
+    .sec-sub{color:var(--muted);font-size:.93rem;line-height:1.8}
+
+    /* FEATURED */
+    .sec{padding:72px 0}
+    .feat-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:44px}
+    .feat-full{grid-column:1/-1;aspect-ratio:21/9;cursor:pointer}
+    .feat-half{aspect-ratio:4/3;cursor:pointer}
+
+    /* MASONRY */
+    .gal-sec{padding:0 0 72px}
+    .gal-filter{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:30px}
+    .gf{padding:7px 18px;border-radius:50px;font-size:.78rem;font-weight:600;cursor:pointer;border:1px solid rgba(255,255,255,.1);color:var(--muted);background:transparent;transition:var(--transition);font-family:'DM Sans',sans-serif}
+    .gf.active,.gf:hover{background:var(--gold);color:var(--charcoal);border-color:var(--gold)}
+    .masonry{columns:3;column-gap:14px}
+    .mi{break-inside:avoid;margin-bottom:14px;border-radius:var(--radius);overflow:hidden;cursor:pointer;position:relative}
+    .mi .img-slot{border-radius:var(--radius)}
+    .mi:nth-child(3n+1) .img-slot{aspect-ratio:3/4}
+    .mi:nth-child(3n+2) .img-slot{aspect-ratio:1/1}
+    .mi:nth-child(3n+3) .img-slot{aspect-ratio:4/3}
+    .mi:nth-child(5) .img-slot{aspect-ratio:16/9}
+    .mi:nth-child(8) .img-slot{aspect-ratio:3/4}
+    .mo{position:absolute;inset:0;background:rgba(13,13,13,.5);opacity:0;transition:var(--transition);display:flex;align-items:center;justify-content:center;border-radius:var(--radius)}
+    .mi:hover .mo{opacity:1}
+    .mo-icon{font-size:2rem;transform:scale(.7);transition:var(--transition)}
+    .mi:hover .mo-icon{transform:scale(1)}
+
+    /* INCLUDES */
+    .inc-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:36px}
+    .inc-card{background:var(--surface);border:1px solid rgba(255,255,255,.06);border-radius:var(--radius);padding:28px 20px;text-align:center;transition:var(--transition);position:relative;overflow:hidden}
+    .inc-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent);transform:scaleX(0);transition:var(--transition)}
+    .inc-card:hover{border-color:rgba(212,175,55,.2);transform:translateY(-4px);box-shadow:0 16px 40px rgba(0,0,0,.4)}
+    .inc-card:hover::before{transform:scaleX(1)}
+    .inc-icon{font-size:2rem;margin-bottom:12px}
+    .inc-title{font-family:'Cormorant Garamond',serif;font-size:1.1rem;font-weight:600;margin-bottom:6px}
+    .inc-desc{font-size:.82rem;color:var(--muted);line-height:1.6}
+
+    /* VIDEO */
+    .vid-sec{padding:72px 0;background:var(--surface);border-top:1px solid rgba(255,255,255,.04);border-bottom:1px solid rgba(255,255,255,.04)}
+    .vid-grid{display:grid;grid-template-columns:1.5fr 1fr 1fr;gap:14px;margin-top:40px}
+    .vt{position:relative;border-radius:var(--radius);overflow:hidden;cursor:pointer}
+    .vt .img-slot{border-radius:0;width:100%;height:100%}
+    .vt-main{height:260px}
+    .vt-side{height:260px}
+    .play-ov{position:absolute;inset:0;background:rgba(13,13,13,.38);display:flex;align-items:center;justify-content:center;transition:var(--transition);border-radius:var(--radius)}
+    .vt:hover .play-ov{background:rgba(13,13,13,.6)}
+    .pb{width:56px;height:56px;border-radius:50%;background:rgba(212,175,55,.9);display:flex;align-items:center;justify-content:center;font-size:1.4rem;color:var(--charcoal);transition:var(--transition)}
+    .vt-side .pb{width:44px;height:44px;font-size:1.1rem}
+    .vt:hover .pb{transform:scale(1.12);background:var(--gold)}
+
+    /* CTA */
+    .cta-sec{padding:72px 0}
+    .cta-box{background:var(--surface);border:1px solid rgba(212,175,55,.15);border-radius:var(--radius);padding:48px 40px;display:flex;align-items:center;justify-content:space-between;gap:28px;flex-wrap:wrap;position:relative;overflow:hidden}
+    .cta-box::before{content:'';position:absolute;top:-60px;right:-60px;width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,rgba(212,175,55,.08),transparent 70%)}
+    .cta-h{font-family:'Cormorant Garamond',serif;font-size:1.9rem;font-weight:700;margin-bottom:8px}
+    .cta-p{color:var(--muted);font-size:.9rem}
+    .cta-btns{display:flex;gap:12px;flex-shrink:0;flex-wrap:wrap}
+    .btn{display:inline-flex;align-items:center;gap:8px;padding:13px 28px;border-radius:50px;font-size:.9rem;font-weight:600;cursor:pointer;transition:var(--transition);border:none}
+    .btn-gold{background:linear-gradient(135deg,var(--gold),var(--gold-dark));color:var(--charcoal)}
+    .btn-gold:hover{transform:translateY(-3px);box-shadow:0 12px 32px rgba(212,175,55,.4)}
+    .btn-wa{background:linear-gradient(135deg,#25d366,#128c7e);color:#fff}
+    .btn-wa:hover{transform:translateY(-3px);box-shadow:0 10px 28px rgba(37,211,102,.3)}
+
+    /* LIGHTBOX */
+    .lb{display:none;position:fixed;inset:0;background:rgba(13,13,13,.97);z-index:9999;align-items:center;justify-content:center}
+    .lb.open{display:flex}
+    .lb-img{max-width:90vw;max-height:88vh;object-fit:contain;border-radius:10px}
+    .lb-x{position:absolute;top:20px;right:24px;font-size:2rem;cursor:pointer;color:var(--muted);background:none;border:none;transition:var(--transition)}
+    .lb-x:hover{color:var(--gold)}
+    .lb-p,.lb-n{position:absolute;top:50%;transform:translateY(-50%);background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:50%;width:48px;height:48px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:1.4rem;transition:var(--transition);color:var(--text)}
+    .lb-p{left:20px}
+    .lb-n{right:20px}
+    .lb-p:hover,.lb-n:hover{background:var(--gold);border-color:var(--gold);color:var(--charcoal)}
+    .lb-c{position:absolute;bottom:18px;left:50%;transform:translateX(-50%);font-size:.78rem;color:var(--muted);letter-spacing:.1em}
+
+    /* REVEAL */
+    .reveal{opacity:0;transform:translateY(24px);transition:opacity .7s cubic-bezier(.4,0,.2,1),transform .7s cubic-bezier(.4,0,.2,1)}
+    .reveal.visible{opacity:1;transform:translateY(0)}
+
+    /* FOOTER */
+    .mini-foot{background:var(--surface);border-top:1px solid rgba(255,255,255,.05);padding:26px 0;text-align:center}
+    .mini-foot p{font-size:.8rem;color:var(--muted)}
+    .mini-foot a{color:var(--gold)}
+
+    @media(max-width:768px){
+      .masonry{columns:2}
+      .feat-grid{grid-template-columns:1fr}
+      .feat-full{aspect-ratio:4/3}
+      .vid-grid{grid-template-columns:1fr}
+      .vt-main,.vt-side{height:200px}
+      .inc-grid{grid-template-columns:1fr 1fr}
+      .album-hero{height:340px}
+      .cta-box{flex-direction:column;text-align:center}
+    }
+    @media(max-width:480px){.masonry{columns:1}.inc-grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+<div id="cg"></div>
+
+<!-- LIGHTBOX -->
+<div class="lb" id="lb">
+  <button class="lb-x" onclick="closeLB()">&#10005;</button>
+  <button class="lb-p" onclick="lbNav(-1)">&#8249;</button>
+  <img class="lb-img" id="lbImg" src="" alt=""/>
+  <button class="lb-n" onclick="lbNav(1)">&#8250;</button>
+  <div class="lb-c" id="lbC"></div>
+</div>
+
+<!-- NAV -->
+<nav>
+  <div class="container nav-inner">
+        <div class="nav-logo" style="display:flex;align-items:center;gap:12px;">
+      <img src="images/logo.png" alt="Shree Gurudev Logo" style="height:44px;width:auto;" onerror="this.style.display='none'"/>
+      <div>
+        Shree <span>Gurudev</span> Inn
+        <small style="margin-top:2px;display:flex;align-items:center;gap:6px;">
+          <span>Lights &amp; Sound</span>
+          <span style="color:var(--gold)">&#8226;</span>
+          <span style="letter-spacing:0.1em">Since 1984 &trade;</span>
+        </small>
+      </div>
+    </div>
+    <a href="index.html" class="back-btn">&#8592; Back to Home</a>
+  </div>
+</nav>
+
+<!-- HERO BANNER -->
+<div class="album-hero">
+  <div class="hero-img-wrap">
+    <div class="img-slot" style="border-radius:0;height:100%">
+      <img src="images/tent-hero.jpg" alt="Tent hero" onload="this.classList.add('loaded')" onerror="this.style.display='none'"/>
+      <div class="slot-empty" style="border-radius:0"><div class="slot-icon">&#127978;</div><div class="slot-fname">tent-hero.jpg</div><div class="slot-hint">Wide landscape banner photo of your best tent/pandal setup</div></div>
+    </div>
+  </div>
+  <div class="hero-overlay"></div>
+  <div class="container hero-content">
+    <div class="breadcrumb">Services <span class="bc-gold">&#8250;</span> <span class="bc-gold">Tent &amp; Pandal Setup</span></div>
+    <h1 class="hero-title">Tent &amp; <em>Pandal</em> Setup</h1>
+    <p class="hero-desc">Elegant marquees, traditional pandals, and modern tented venues &mdash; custom sized and styled for every occasion with beautiful draping and decor.</p>
+    <div class="hero-stats">
+      <div class="hs"><strong>200+</strong><span>Setups Done</span></div>
+      <div class="hs"><strong>All</strong><span>Sizes Available</span></div>
+      <div class="hs"><strong>24hr</strong><span>Setup Time</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- FEATURED -->
+<div class="sec">
+  <div class="container">
+    <div class="reveal">
+      <div class="sec-label">Featured Setups</div>
+      <h2 class="sec-title">Our Best Work</h2>
+      <p class="sec-sub">A showcase of our finest tent and pandal setups across weddings, gatherings, and cultural programs.</p>
+    </div>
+    <div class="feat-grid reveal">
+      <div class="img-slot feat-full mi" onclick="openLB(0)">
+        <img src="images/tent-1.jpg" alt="Tent 1" onload="this.classList.add('loaded')" onerror="this.style.display='none'"/>
+        <div class="slot-empty"><div class="slot-icon">&#127978;</div><div class="slot-fname">tent-1.jpg</div><div class="slot-hint">Featured wide tent — best panoramic photo</div></div>
+        <div class="mo"><div class="mo-icon">&#128269;</div></div>
+      </div>
+      <div class="img-slot feat-half mi" onclick="openLB(1)">
+        <img src="images/tent-2.jpg" alt="Tent 2" onload="this.classList.add('loaded')" onerror="this.style.display='none'"/>
+        <div class="slot-empty"><div class="slot-icon">&#127978;</div><div class="slot-fname">tent-2.jpg</div><div class="slot-hint">Interior pandal/tent view</div></div>
+        <div class="mo"><div class="mo-icon">&#128269;</div></div>
+      </div>
+      <div class="img-slot feat-half mi" onclick="openLB(2)">
+        <img src="images/tent-3.jpg" alt="Tent 3" onload="this.classList.add('loaded')" onerror="this.style.display='none'"/>
+        <div class="slot-empty"><div class="slot-icon">&#127978;</div><div class="slot-fname">tent-3.jpg</div><div class="slot-hint">Night view with lighting</div></div>
+        <div class="mo"><div class="mo-icon">&#128269;</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FULL GALLERY -->
+<div class="gal-sec">
+  <div class="container">
+    <div class="reveal">
+      <div class="sec-label">Full Album</div>
+      <h2 class="sec-title">All Tent &amp; Pandal Photos</h2>
+    </div>
+    <div class="gal-filter reveal">
+      <button class="gf active" onclick="filterAlbum('all',this)">All</button>
+      <button class="gf" onclick="filterAlbum('wedding',this)">Wedding Pandals</button>
+      <button class="gf" onclick="filterAlbum('cultural',this)">Cultural Events</button>
+      <button class="gf" onclick="filterAlbum('religious',this)">Religious Gatherings</button>
+      <button class="gf" onclick="filterAlbum('outdoor',this)">Outdoor Setups</button>
+    </div>
+    <div class="masonry reveal" id="albumGrid">
+      <div class="mi" data-acat="wedding" onclick="openLB(3)"><div class="img-slot"><img src="images/tent-4.jpg" alt="" onload="this.classList.add('loaded')" onerror="this.style.display='none'"/><div class="slot-empty"><div class="slot-icon">&#127978;</div><div class="slot-fname">tent-4.jpg</div><div class="slot-hint">Wedding pandal photo</div></div></div><div class="mo"><div class="mo-icon">&#128269;</div></div></div>
+      <div class="mi" data-acat="cultural" onclick="openLB(4)"><div class="img-slot"><img src="images/tent-5.jpg" alt="" onload="this.classList.add('loaded')" onerror="this.style.display='none'"/><div class="slot-empty"><div class="slot-icon">&#127978;</div><div class="slot-fname">tent-5.jpg</div><div class="slot-hint">Cultural event tent</div></div></div><div class="mo"><div class="mo-icon">&#128269;</div></div></div>
+      <div class="mi" data-acat="religious" onclick="openLB(5)"><div class="img-slot"><img src="images/tent-6.jpg" alt="" onload="this.classList.add('loaded')" onerror="this.style.display='none'"/><div class="slot-empty"><div class="slot-icon">&#127978;</div><div class="slot-fname">tent-6.jpg</div><div class="slot-hint">Religious gathering pandal</div></div></div><div class="mo"><div class="mo-icon">&#128269;</div></div></div>
+      <div class="mi" data-acat="outdoor" onclick="openLB(6)"><div class="img-slot"><img src="images/tent-7.jpg" alt="" onload="this.classList.add('loaded')" onerror="this.style.display='none'"/><div class="slot-empty"><div class="slot-icon">&#127978;</div><div class="slot-fname">tent-7.jpg</div><div class="slot-hint">Large outdoor tent</div></div></div><div class="mo"><div class="mo-icon">&#128269;</div></div></div>
+      <div class="mi" data-acat="wedding" onclick="openLB(7)"><div class="img-slot"><img src="images/tent-8.jpg" alt="" onload="this.classList.add('loaded')" onerror="this.style.display='none'"/><div class="slot-empty"><div class="slot-icon">&#127978;</div><div class="slot-fname">tent-8.jpg</div><div class="slot-hint">Wedding tent decoration</div></div></div><div class="mo"><div class="mo-icon">&#128269;</div></div></div>
+      <div class="mi" data-acat="cultural" onclick="openLB(8)"><div class="img-slot"><img src="images/tent-9.jpg" alt="" onload="this.classList.add('loaded')" onerror="this.style.display='none'"/><div class="slot-empty"><div class="slot-icon">&#127978;</div><div class="slot-fname">tent-9.jpg</div><div class="slot-hint">Stage inside tent</div></div></div><div class="mo"><div class="mo-icon">&#128269;</div></div></div>
+      <div class="mi" data-acat="outdoor" onclick="openLB(9)"><div class="img-slot"><img src="images/tent-10.jpg" alt="" onload="this.classList.add('loaded')" onerror="this.style.display='none'"/><div class="slot-empty"><div class="slot-icon">&#127978;</div><div class="slot-fname">tent-10.jpg</div><div class="slot-hint">Outdoor pandal — wide view</div></div></div><div class="mo"><div class="mo-icon">&#128269;</div></div></div>
+      <div class="mi" data-acat="religious" onclick="openLB(10)"><div class="img-slot"><img src="images/tent-11.jpg" alt="" onload="this.classList.add('loaded')" onerror="this.style.display='none'"/><div class="slot-empty"><div class="slot-icon">&#127978;</div><div class="slot-fname">tent-11.jpg</div><div class="slot-hint">Decorated pandal interior</div></div></div><div class="mo"><div class="mo-icon">&#128269;</div></div></div>
+      <div class="mi" data-acat="wedding" onclick="openLB(11)"><div class="img-slot"><img src="images/tent-12.jpg" alt="" onload="this.classList.add('loaded')" onerror="this.style.display='none'"/><div class="slot-empty"><div class="slot-icon">&#127978;</div><div class="slot-fname">tent-12.jpg</div><div class="slot-hint">Reception tent setup</div></div></div><div class="mo"><div class="mo-icon">&#128269;</div></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- WHAT IS INCLUDED -->
+<div class="sec" style="padding-top:0">
+  <div class="container">
+    <div class="reveal">
+      <div class="sec-label">What&rsquo;s Included</div>
+      <h2 class="sec-title">Everything in Our Tent Package</h2>
+    </div>
+    <div class="inc-grid reveal">
+      <div class="inc-card"><div class="inc-icon">&#127978;</div><div class="inc-title">Traditional Pandals</div><div class="inc-desc">Beautifully decorated pandals for weddings, pujas, and religious gatherings of all sizes</div></div>
+      <div class="inc-card"><div class="inc-icon">&#9968;</div><div class="inc-title">Marquee Tents</div><div class="inc-desc">Premium tents in all sizes &mdash; from 20x20 ft to 100x200 ft and beyond for big crowds</div></div>
+      <div class="inc-card"><div class="inc-icon">&#127800;</div><div class="inc-title">Floral Draping</div><div class="inc-desc">Elegant fabric draping, flower decoration, and themed entrance arches included</div></div>
+      <div class="inc-card"><div class="inc-icon">&#9917;</div><div class="inc-title">Full Setup &amp; Removal</div><div class="inc-desc">Complete installation by our team and clean removal after your event ends</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- VIDEOS -->
+<div class="vid-sec">
+  <div class="container">
+    <div class="reveal">
+      <div class="sec-label">Video Walkthroughs</div>
+      <h2 class="sec-title">See Our Setups in Action</h2>
+      <p class="sec-sub">Upload your setup video files (.mp4) into the <strong>videos/</strong> folder (e.g., tent-video-1.mp4) and thumbnails into the <strong>images/</strong> folder.</p>
+    </div>
+    <div class="vid-grid reveal">
+      <div class="vt vt-main" style="background:var(--surface2); border:1px solid rgba(255,255,255,.05);">
+        <video controls poster="images/tent-video-1.jpg" style="width:100%; height:100%; object-fit:cover; display:block; outline:none;">
+          <source src="videos/tent-video-1.mp4" type="video/mp4">
+          Your browser does not support HTML video.
+        </video>
+      </div>
+      <div class="vt vt-side" style="background:var(--surface2); border:1px solid rgba(255,255,255,.05);">
+        <video controls poster="images/tent-video-2.jpg" style="width:100%; height:100%; object-fit:cover; display:block; outline:none;">
+          <source src="videos/tent-video-2.mp4" type="video/mp4">
+        </video>
+      </div>
+      <div class="vt vt-side" style="background:var(--surface2); border:1px solid rgba(255,255,255,.05);">
+        <video controls poster="images/tent-video-3.jpg" style="width:100%; height:100%; object-fit:cover; display:block; outline:none;">
+          <source src="videos/tent-video-3.mp4" type="video/mp4">
+        </video>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CTA -->
+<div class="cta-sec">
+  <div class="container">
+    <div class="cta-box reveal">
+      <div>
+        <div class="cta-h">Need a Tent or Pandal Setup?</div>
+        <p class="cta-p">Contact us today &mdash; we&rsquo;ll visit your venue, understand your needs, and give you a free quote.</p>
+      </div>
+      <div class="cta-btns">
+        <a href="index.html#contact" class="btn btn-gold">Get a Free Quote &#10022;</a>
+        <a href="https://wa.me/919423417783" target="_blank" class="btn btn-wa">&#128172; WhatsApp Us</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<div class="mini-foot">
+  <p>&copy; 2024 Shree Gurudev Inn &bull; <a href="index.html">Back to Home</a> &bull; Brahmapuri, Chandrapur</p>
+</div>
+
+<script>
+  /* cursor */
+  const cg=document.getElementById('cg');
+  document.addEventListener('mousemove',e=>{cg.style.left=e.clientX+'px';cg.style.top=e.clientY+'px'});
+
+  /* reveal */
+  const obs=new IntersectionObserver(entries=>{
+    entries.forEach((e,i)=>{if(e.isIntersecting){setTimeout(()=>e.target.classList.add('visible'),i*60);obs.unobserve(e.target)}})
+  },{threshold:.08});
+  document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+
+  /* album filter */
+  function filterAlbum(cat,btn){
+    document.querySelectorAll('.gf').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('#albumGrid .mi').forEach(c=>{
+      c.style.display=(cat==='all'||c.dataset.acat===cat)?'':'none';
+    });
+  }
+
+  /* LIGHTBOX */
+  const allImgs=[];
+  document.querySelectorAll('.mi img, .feat-full img, .feat-half img').forEach(img=>{
+    allImgs.push({src:img.src,loaded:img.classList.contains('loaded')});
+  });
+  let lbIdx=0;
+  function openLB(i){
+    lbIdx=i;
+    const src=allImgs[i]?allImgs[i].src:'';
+    if(!src||src.includes('undefined'))return;
+    document.getElementById('lbImg').src=src;
+    document.getElementById('lbC').textContent=(i+1)+' / '+allImgs.length;
+    document.getElementById('lb').classList.add('open');
+    document.body.style.overflow='hidden';
+  }
+  function closeLB(){document.getElementById('lb').classList.remove('open');document.body.style.overflow=''}
+  function lbNav(d){
+    lbIdx=(lbIdx+d+allImgs.length)%allImgs.length;
+    document.getElementById('lbImg').src=allImgs[lbIdx].src;
+    document.getElementById('lbC').textContent=(lbIdx+1)+' / '+allImgs.length;
+  }
+  document.getElementById('lb').addEventListener('click',e=>{if(e.target===e.currentTarget)closeLB()});
+  document.addEventListener('keydown',e=>{
+    if(e.key==='Escape')closeLB();
+    if(e.key==='ArrowRight')lbNav(1);
+    if(e.key==='ArrowLeft')lbNav(-1);
+  });
+</script>
+</body>
+</html>
